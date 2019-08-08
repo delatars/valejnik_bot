@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.utils.executor import Executor
 
-from tmp.config import TELEGRAM_BOT_API_KEY, PROXY_URL, PROXY_AUTH, TIME_BETWEEN_POSTS
+from config import TELEGRAM_BOT_API_KEY, PROXY_URL, PROXY_AUTH, TIME_BETWEEN_POSTS
 from custom_filters import ChatTypeFilter
 from services.meme_queue import AsyncQueue
 
