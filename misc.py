@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
 import asyncio
+import logging
 from aiogram import Bot, Dispatcher
 from aiogram.utils.executor import Executor
 
@@ -8,17 +10,30 @@ from custom_filters import ChatTypeFilter
 from services.meme_queue import AsyncQueue
 
 
-# - Initialize bot and dispatcher
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout
+)
+logger = logging.getLogger("valejnik.misc")
+
+
 bot = Bot(token=TELEGRAM_BOT_API_KEY, proxy=PROXY_URL, proxy_auth=PROXY_AUTH)
+logger.info(f"Initialize bot: {bot}")
+
 dispatcher = Dispatcher(bot)
+logger.info(f"Initialize dispatcher: {dispatcher}")
 
 # - Register custom filter
 dispatcher.filters_factory.bind(ChatTypeFilter, event_handlers=[dispatcher.message_handlers])
 
 # - Initialize queue
 MemeQueue = AsyncQueue(100)
+logger.info(f"Initialize MemeQueue: {MemeQueue}")
 
 loop = asyncio.get_event_loop()
 task = loop.create_task(MemeQueue.start_posting(bot, TIME_BETWEEN_POSTS))
 
 executor = Executor(dispatcher, loop=loop)
+logger.info(f"Initialize executor: {executor}")
