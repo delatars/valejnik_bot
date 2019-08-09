@@ -4,6 +4,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.utils.executor import Executor
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from config import TELEGRAM_BOT_API_KEY, PROXY_URL, PROXY_AUTH, TIME_BETWEEN_POSTS
 from custom_filters import ChatTypeFilter
@@ -22,7 +23,8 @@ logger = logging.getLogger("valejnik.misc")
 bot = Bot(token=TELEGRAM_BOT_API_KEY, proxy=PROXY_URL, proxy_auth=PROXY_AUTH)
 logger.info(f"Initialize bot: {bot}")
 
-dispatcher = Dispatcher(bot)
+storage = MemoryStorage()
+dispatcher = Dispatcher(bot, storage=storage)
 logger.info(f"Initialize dispatcher: {dispatcher}")
 
 # - Register custom filter
