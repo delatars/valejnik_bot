@@ -19,6 +19,6 @@ dispatcher.filters_factory.bind(ChatTypeFilter, event_handlers=[dispatcher.messa
 MemeQueue = AsyncQueue(100)
 
 loop = asyncio.get_event_loop()
-task = loop.create_task(MemeQueue.start_posting(TIME_BETWEEN_POSTS))
+task = loop.create_task(MemeQueue.start_posting(bot, TIME_BETWEEN_POSTS))
 
-executor = Executor(dispatcher)
+executor = Executor(dispatcher, loop=loop)
