@@ -11,6 +11,7 @@ class MemePoll:
     ]
     DISABLE_NOTIFICATION = True
     THRESHOLD_VOTES_TO_STOP = 2
+    INDEX_ANSWER_TO_POST = 0  # OPTIONS[0]
     ACTIVE_POLLS = []  # Currently active polls (not closed)
 
 
