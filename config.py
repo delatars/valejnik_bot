@@ -6,6 +6,10 @@ TELEGRAM_BOT_API_KEY = "<API KEY>"
 PROXY_URL = None
 PROXY_AUTH = None  # aiohttp.BasicAuth
 
+# Redis server
+REDIS_SERVER = "172.0.0.1"
+REDIS_PORT = 6379
+
 # Approved posts settings
 TIME_BETWEEN_POSTS = 10  # minutes
 
