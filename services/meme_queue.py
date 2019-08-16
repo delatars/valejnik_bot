@@ -18,7 +18,7 @@ class AsyncQueue(asyncio.Queue, RedisConnector):
 
     SEND_POSTS_TO = "@Valejnick"
     DISABLE_NOTIFICATION = True
-    REDIS_DB = 2  # Todo не изменяется индекс
+    REDIS_DB = 2
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
