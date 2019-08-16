@@ -15,6 +15,8 @@ TIME_BETWEEN_POSTS = 10  # minutes
 
 # Bot settings
 ADMIN_PASSWORD = "qwe123"
+MODERATE_CHANNEL_ID = 0
+POST_CHANNEL_ID = "@test"
 
 
 if __name__ == '__main__':
