@@ -18,15 +18,11 @@ async def track_group_poll(poll: types.Poll):
         if option["voter_count"] >= GroupMemePoll.THRESHOLD_VOTES_TO_STOP:
             await bot.stop_poll(message_with_poll.chat.id, message_with_poll.message_id)
             await GroupMemePoll.delete_poll(poll.id)
+            await bot.send_message(message_with_poll.chat.id, GroupMemePoll.OPTIONS_ANSWERS[option_index],
+                                   reply_to_message_id=message_with_poll.reply_to_message.message_id)
             if option_index == GroupMemePoll.INDEX_ANSWER_TO_POST:
                 await MemeQueue.put(message_with_poll)
-                await bot.send_message(message_with_poll.chat.id, "Mемас добавлен в очередь! Спасибо за сбор валежника.",
-                                       reply_to_message_id=message_with_poll.reply_to_message.message_id)
-                return
-            else:
-                await bot.send_message(message_with_poll.chat.id, "Сорян, но походу мемас оказался не очень.",
-                                       reply_to_message_id=message_with_poll.reply_to_message.message_id)
-                return
+            return
     await GroupMemePoll.update_poll(poll)
 
 
@@ -42,7 +38,7 @@ async def track_users_poll(poll: types.Poll):
             await UsersMemePoll.delete_poll(poll.id)
             await bot.send_message(user_message.chat.id, UsersMemePoll.OPTIONS_ANSWERS[option_index],
                                    reply_to_message_id=user_message.message_id)
-            if option_index == GroupMemePoll.INDEX_ANSWER_TO_POST:
+            if option_index == UsersMemePoll.INDEX_ANSWER_TO_POST:
                 await MemeQueue.put(message_with_poll)
             return
     await UsersMemePoll.update_poll(poll)

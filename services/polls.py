@@ -13,6 +13,11 @@ class GroupMemePoll(RedisConnector):
         "Баян.",
         "Не смешной."
     ]
+    OPTIONS_ANSWERS = [
+        "Mемас добавлен в очередь! Спасибо за сбор валежника.",
+        "Годно, но уже баян.",
+        "Мы очень пытались, но никто не заорал."
+    ]
     DISABLE_NOTIFICATION = True
     THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
@@ -61,7 +66,7 @@ class UsersMemePoll(RedisConnector):
     ]
     OPTIONS_ANSWERS = [
         "Годно, отправили в печать!",
-        "годно, но уже баян.",
+        "Годно, но уже баян.",
         "Мы очень пытались, но никто не заорал.",
         "На пикче нехватает твоей мамки."
     ]
