@@ -28,13 +28,10 @@ class ChatIdFilter(BoundFilter):
     key = 'chat_id'
 
     def __init__(self, chat_id: str):
-        if isinstance(chat_id, str):
-            self.chat_id = chat_id
-        else:
-            self.chat_id = ""
+        self.chat_id = str(chat_id)
 
     async def check(self, message: types.Message) -> bool:
-        return message.chat.id == self.chat_id
+        return str(message.chat.id) == self.chat_id
 
 
 class PollQuestionFilter(BoundFilter):

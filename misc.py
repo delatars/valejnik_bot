@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("valejnik.misc")
 
-
+# Todo add Throttling Middleware
 bot = Bot(token=config.TELEGRAM_BOT_API_KEY, proxy=config.PROXY_URL, proxy_auth=config.PROXY_AUTH)
 logger.info(f"Initialize bot: {bot}")
 

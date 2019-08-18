@@ -46,7 +46,7 @@ async def exit(message: types.Message, state: FSMContext):
 
 
 @dispatcher.message_handler(ChatTypeFilter("private"), commands=['set_timeout'], state=Auth.settings)
-async def set_timeout(message: types.Message, state: FSMContext):
+async def set_timeout(message: types.Message):
     """ `/set_timeout - Выйти из настроек ` """
     argument = message.get_args()
     if not argument:
@@ -54,16 +54,16 @@ async def set_timeout(message: types.Message, state: FSMContext):
     if not argument.isdigit():
         return await message.reply("Аргумент <timeout> должен быть числом: Например: /set_timeout 4")
     config.TIME_BETWEEN_POSTS = argument
-    await bot.send_message(message.chat.id, "Установлено")
+    await bot.send_message(message.chat.id, f"Установлено время между постами: {argument} мин.")
 
 
 @dispatcher.message_handler(ChatTypeFilter("private"), state=Auth.settings)
 async def settings(message: types.Message):
     """ `/settings` """
-    text = "Ты находишься в меню настроек:\n" \
-           "/set_post_channel - Установить канал в который постить после модерации.\n" \
-           "/set_moderate_channel - Установить канал в который отправлять на модерацию.\n" \
-           "/set_timeout <timeout> - Установить таймаут между постами в канал.(устанавливается в минутах)\n" \
+    text = "Ты находишься в меню настроек:\n\n" \
+           "/set_post_channel <channel_id> - Установить канал в который постить после модерации.\n\n" \
+           "/set_moderate_channel <channel_id> - Установить канал в который отправлять на модерацию.\n\n" \
+           "/set_timeout <timeout> - Установить таймаут между постами в канал.(устанавливается в минутах)\n\n" \
            "/exit - Выйти из настроек.\n"
     await bot.send_message(message.chat.id, text)
 
