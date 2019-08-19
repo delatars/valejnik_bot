@@ -12,6 +12,7 @@ REDIS_PORT = 6379
 
 # Approved posts settings
 TIME_BETWEEN_POSTS = 10  # minutes
+THROTTLE_TIME_LIMIT = 5  # seconds
 
 # Bot settings
 ADMIN_PASSWORD = "qwe123"

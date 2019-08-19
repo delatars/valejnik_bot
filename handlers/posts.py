@@ -9,6 +9,13 @@ from services.polls import GroupMemePoll, UsersMemePoll
 from custom_filters import ChatTypeFilter, ChatIdFilter, PollQuestionFilter
 
 
+async def throttled_message(*args, **kwargs):
+    message = args[0]
+    val = f"{config.THROTTLE_TIME_LIMIT} секунд." if config.THROTTLE_TIME_LIMIT // 60 == 0 else \
+        f"{config.THROTTLE_TIME_LIMIT // 60} минут."
+    await message.answer(f"Извините, но мемасы можно отправлять раз в {val}\nПожалуйста подождите...")
+
+
 @dispatcher.poll_handler(PollQuestionFilter("Опана"))
 async def track_group_poll(poll: types.Poll):
     message_with_poll = await GroupMemePoll.get_poll(poll.id)
@@ -53,6 +60,7 @@ async def group_meme(message: types.Message):
 
 
 @dispatcher.message_handler(ChatTypeFilter(["private", "group"]), content_types=ContentType.PHOTO)
+@dispatcher.throttled(throttled_message, rate=config.THROTTLE_TIME_LIMIT)
 async def private_meme(message: types.Message):
     user_meme_message = await bot.send_photo(config.MODERATE_CHANNEL_ID, message.photo[1].file_id,
                                              disable_notification=UsersMemePoll.DISABLE_NOTIFICATION)
