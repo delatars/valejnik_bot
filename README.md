@@ -6,11 +6,11 @@ Requires: python 3.7+
 
 Work scheme:
 ```
-                                             +---->>>>>(send approved meme)>>>>>----channel with memes
+                                             +---->>>>>(send approved meme)>>>>>----Channel with memes
                                              |
                                           +-----+
-                    Private chat ----+--->| Bot |---->>>>(send meme and poll)>>>>----moderate group
-send image--->>>---|                 |    +-----+                                        |
+                    Private chat ----+--->| Bot |---->>>>(send meme and poll)>>>>----Moderate group
+Send image--->>>---|                 |    +-----+                                        |
                     Group chat ------+       |                                           |
                                              +--------<<<<<<(send response)<<<<<<--------+
 
