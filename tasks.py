@@ -17,9 +17,5 @@ task1 = loop.create_task(MemeQueue.load_queue())
 task2 = loop.create_task(MemeQueue.start_posting(bot, config.TIME_BETWEEN_POSTS))
 
 
-def initialize_tasks():
-    return loop
-
-
 if __name__ == '__main__':
     pass

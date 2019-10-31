@@ -22,8 +22,10 @@ bot = Bot(token=config.TELEGRAM_BOT_API_KEY, proxy=config.PROXY_URL, proxy_auth=
 logger.info(f"Initialize bot: {bot}")
 
 
-RedisPool = RedisStorage2(host=config.REDIS_SERVER, port=config.REDIS_PORT, db=0, pool_size=20)
-dispatcher = Dispatcher(bot, storage=RedisPool)
+RedisPoolDispatcher = RedisStorage2(host=config.REDIS_SERVER, port=config.REDIS_PORT, db=0, pool_size=20)
+RedisPoolMemes = RedisStorage2(host=config.REDIS_SERVER, port=config.REDIS_PORT, db=1, pool_size=20)
+
+dispatcher = Dispatcher(bot, storage=RedisPoolDispatcher)
 logger.info(f"Initialize dispatcher: {dispatcher}")
 
 # - Register custom filter

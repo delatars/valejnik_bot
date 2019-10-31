@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys
-import asyncio
-import aioredis
 import logging
-from misc import RedisPool, dispatcher
+from misc import RedisPoolMemes
 
 
 __all__ = ["RedisConnector"]
@@ -18,6 +15,9 @@ def redis_db_selector(func):
     async def wrapper(cls, *args, **kwargs):
         redis = await cls._redis()
         previous_db = redis.db
+        if previous_db == cls.REDIS_DB:
+            return await func(cls, *args, **kwargs)
+
         await redis.select(cls.REDIS_DB)
         logger.debug(f"Change db index to: {cls.REDIS_DB}")
         result = await func(cls, *args, **kwargs)
@@ -34,7 +34,7 @@ class RedisConnector:
 
     @classmethod
     async def _redis(cls):
-        return await RedisPool.redis()
+        return await RedisPoolMemes.redis()
 
     @classmethod
     def redis_generate_key(cls, *parts):
