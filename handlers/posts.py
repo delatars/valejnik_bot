@@ -64,7 +64,12 @@ async def group_meme(message: types.Message):
 async def private_meme(message: types.Message):
     user_meme_message = await bot.send_photo(config.MODERATE_CHANNEL_ID, message.photo[1].file_id,
                                              disable_notification=UsersMemePoll.DISABLE_NOTIFICATION)
-    question = UsersMemePoll.QUESTION + "@" + message.from_user.username
+    question = f"{UsersMemePoll.QUESTION}: @{message.from_user.username}\n" \
+               f"Доп. инфа:\n" \
+               f"Bot: {'Да' if message.from_user.is_bot else 'Нет'} | " \
+                f"UserName: {message.from_user.username} | " \
+                f"- LastName: {message.from_user.last_name} | " \
+                f"- FirstName: {message.from_user.first_name}"
     message_with_poll = await bot.send_poll(config.MODERATE_CHANNEL_ID, question, UsersMemePoll.OPTIONS,
                                             UsersMemePoll.DISABLE_NOTIFICATION, user_meme_message.message_id)
     await UsersMemePoll.add_poll(message, message_with_poll)
