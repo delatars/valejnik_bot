@@ -1,5 +1,5 @@
 from . import (
     commands,
     messages,
-    posts
+    polls
 )

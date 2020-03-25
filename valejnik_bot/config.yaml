@@ -1,0 +1,25 @@
+general:
+  api:
+    url: https://api.telegram.org/bot
+    proxy:
+      url:
+      login:
+      password:
+    token:
+    webhook:
+      url:
+      cert:
+      pkey:
+
+  redis:
+    host: "127.0.0.1"
+    port: 6379
+
+bot:
+  posts:
+    time_between_posts: 5  # minutes
+    throttle_time_limit: 60  # seconds
+  admin:
+    password: "admin"
+    moderate_channel_id:
+    post_channel_id:

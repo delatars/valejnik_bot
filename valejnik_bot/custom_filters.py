@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
 from aiogram.dispatcher.filters.filters import BoundFilter
 from aiogram import types
+
+from typing import Union, List, Tuple
 
 
 class ChatTypeFilter(BoundFilter):
@@ -13,7 +14,7 @@ class ChatTypeFilter(BoundFilter):
     """
     key = 'chat_type'
 
-    def __init__(self, chat_type: str or list or tuple):
+    def __init__(self, chat_type: Union[str, List, Tuple]):
         self.chat_type = chat_type
 
     async def check(self, message: types.Message) -> bool:

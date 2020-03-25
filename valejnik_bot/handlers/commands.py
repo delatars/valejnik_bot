@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
 from aiogram import types
-from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher import FSMContext, Dispatcher
 
-from misc import dispatcher, bot
-from custom_filters import ChatTypeFilter
-from services.auth import Auth, Banned
-import config
+from valejnik_bot.custom_filters import ChatTypeFilter
+from valejnik_bot.services.auth import Auth, Banned
 
 
-@dispatcher.message_handler(ChatTypeFilter("private"), commands=['admin'], state=Auth.check_password.banned)
-async def any_message(message: types.Message, state: FSMContext):
+__all__ = ["register_commands"]
+
+
+async def admin_banned(message: types.Message, state: FSMContext):
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+
     remaining = Banned.is_ban(message.from_user.username)
     if remaining:
         await bot.send_message(message.chat.id, f"Ты был забанен на 1 час. Осталось: {remaining} минут.")
@@ -18,17 +20,21 @@ async def any_message(message: types.Message, state: FSMContext):
         await admin(message, state)
 
 
-@dispatcher.message_handler(ChatTypeFilter("private"), commands=['start'])
 async def start(message: types.Message):
     """ `/start` """
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+
     text = "Шалом паря! Сейчас мы начнём валежничать по полной😎\n" \
            "Скидывай мне мемасики, а уж я разберусь что с ними делать😉"
     await bot.send_message(message.chat.id, text)
 
 
-@dispatcher.message_handler(ChatTypeFilter("private"), commands=['admin'])
 async def admin(message: types.Message, state: FSMContext):
     """ `/admin` """
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+
     current_state = await state.get_state()
     if current_state == Auth.settings:
         await bot.send_message(message.chat.id, "Ты уже избранный, и можешь все (/settings).")
@@ -37,35 +43,54 @@ async def admin(message: types.Message, state: FSMContext):
     await bot.send_message(message.chat.id, "А ну-ка дядя, напиши мне то что я хочу увидеть.")
 
 
-# ################### Settings
-@dispatcher.message_handler(ChatTypeFilter("private"), commands=['exit'], state=Auth.settings)
 async def exit(message: types.Message, state: FSMContext):
     """ `/exit - Выйти из настроек ` """
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+
     await state.reset_state()
     await bot.send_message(message.chat.id, "Если что ты знаешь, как вернуться😉")
 
 
-@dispatcher.message_handler(ChatTypeFilter("private"), commands=['set_timeout'], state=Auth.settings)
 async def set_timeout(message: types.Message):
     """ `/set_timeout - Выйти из настроек ` """
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+    config = dispatcher["config"]
+
     argument = message.get_args()
     if not argument:
         return await message.reply("Необходим аргумент <timeout>: Например: /set_timeout 4")
     if not argument.isdigit():
         return await message.reply("Аргумент <timeout> должен быть числом: Например: /set_timeout 4")
-    config.TIME_BETWEEN_POSTS = argument
+    config["bot"]["posts"]["time_between_posts"] = argument
     await bot.send_message(message.chat.id, f"Установлено время между постами: {argument} мин.")
 
 
-@dispatcher.message_handler(ChatTypeFilter("private"), state=Auth.settings)
 async def settings(message: types.Message):
     """ `/settings` """
+    dispatcher = Dispatcher.get_current()
+    bot = dispatcher.bot
+
     text = "Ты находишься в меню настроек:\n\n" \
            "/set_post_channel <channel_id> - Установить канал в который постить после модерации.\n\n" \
            "/set_moderate_channel <channel_id> - Установить канал в который отправлять на модерацию.\n\n" \
            "/set_timeout <timeout> - Установить таймаут между постами в канал.(устанавливается в минутах)\n\n" \
            "/exit - Выйти из настроек.\n"
     await bot.send_message(message.chat.id, text)
+
+
+def register_commands(dispatcher):
+    dispatcher.register_message_handler(start, ChatTypeFilter("private"), commands=['start'])
+    dispatcher.register_message_handler(admin, ChatTypeFilter("private"), commands=['admin'])
+    dispatcher.register_message_handler(admin_banned, ChatTypeFilter("private"),
+                                        state=Auth.check_password.banned, commands=['admin'])
+    dispatcher.register_message_handler(exit, ChatTypeFilter("private"),
+                                        state=Auth.settings, commands=['exit'])
+    dispatcher.register_message_handler(set_timeout, ChatTypeFilter("private"),
+                                        state=Auth.settings, commands=['set_timeout'])
+    dispatcher.register_message_handler(settings, ChatTypeFilter("private"),
+                                        state=Auth.settings, commands=['settings'])
 
 
 if __name__ == '__main__':

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+import aioredis
 import json
 from aiogram import types
 
-from utils import RedisConnector
 
-
-class GroupMemePoll(RedisConnector):
+class GroupMemePoll:
     """ Poll which will be sended after any image will be posted in group """
+
+    REDIS_KEY_PREFIX = "polls"
     QUESTION = "Опана... Новый мемасик подъехал! Аппрувим?"
     OPTIONS = [
         "Канеш.👍",
@@ -26,39 +27,42 @@ class GroupMemePoll(RedisConnector):
     THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
 
-    @classmethod
-    async def add_poll(cls, message_with_poll: types.Message):
-        key = cls.redis_generate_key("group_meme", message_with_poll.poll.id)
+    def __init__(self, redis_conn: aioredis.Redis):
+        self.redis = redis_conn
+
+    def redis_generate_key(self, *parts):
+        return ':'.join((self.REDIS_KEY_PREFIX, ) + tuple(map(str, parts)))
+
+    async def add_poll(self, message_with_poll: types.Message):
+        key = self.redis_generate_key("group_meme", message_with_poll.poll.id)
         value = message_with_poll.as_json()
-        await cls.redis_set(key, value)
+        await self.redis.set(key, value)
 
-    @classmethod
-    async def delete_poll(cls, poll_id: str):
-        key = cls.redis_generate_key("group_meme", poll_id)
-        await cls.redis_delete(key)
+    async def delete_poll(self, poll_id: str):
+        key = self.redis_generate_key("group_meme", poll_id)
+        await self.redis.delete(key)
 
-    @classmethod
-    async def get_poll(cls, poll_id: str) -> types.Message or None:
-        key = cls.redis_generate_key("group_meme", poll_id)
-        value = await cls.redis_get(key)
+    async def get_poll(self, poll_id: str) -> types.Message or None:
+        key = self.redis_generate_key("group_meme", poll_id)
+        value = await self.redis.get(key)
         if value:
             return types.Message.to_object(json.loads(value))
         else:
             return None
 
-    @classmethod
-    async def update_poll(cls, poll: types.Poll) -> bool:
-        key = cls.redis_generate_key("group_meme", poll.id)
-        value = await cls.get_poll(key)
+    async def update_poll(self, poll: types.Poll) -> bool:
+        key = self.redis_generate_key("group_meme", poll.id)
+        value = await self.get_poll(key)
         if value is None:
             return False
         value.poll = poll
-        await cls.redis_set(key, value.as_json())
+        await self.redis.set(key, value.as_json())
         return True
 
 
-class UsersMemePoll(RedisConnector):
+class UsersMemePoll:
     """ Poll which will be sended after any image will be posted in group """
+    REDIS_KEY_PREFIX = "polls"
     QUESTION = "Ахтунг! мемас от пользователя: "
     OPTIONS = [
         "Аппрувим.",
@@ -80,45 +84,42 @@ class UsersMemePoll(RedisConnector):
     THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
 
-    @classmethod
-    async def add_poll(cls, user_message: types.Message, message_with_poll: types.Message):
-        key = cls.redis_generate_key("user_meme", message_with_poll.poll.id)
-        await cls.redis_hset(key, "user_message", user_message.as_json())
-        await cls.redis_hset(key, "message", message_with_poll.as_json())
+    def __init__(self, redis_conn: aioredis.Redis):
+        self.redis = redis_conn
 
-    @classmethod
-    async def delete_poll(cls, poll_id: str):
-        key = cls.redis_generate_key("user_meme", poll_id)
-        await cls.redis_delete(key)
+    def redis_generate_key(self, *parts):
+        return ':'.join((self.REDIS_KEY_PREFIX, ) + tuple(map(str, parts)))
 
-    @classmethod
-    async def get_poll(cls, poll_id: str) -> types.Message or None:
-        key = cls.redis_generate_key("user_meme", poll_id)
-        value = await cls.redis_hget(key, "message")
+    async def add_poll(self, user_message: types.Message, message_with_poll: types.Message):
+        key = self.redis_generate_key("user_meme", message_with_poll.poll.id)
+        await self.redis.hset(key, "user_message", user_message.as_json())
+        await self.redis.hset(key, "message", message_with_poll.as_json())
+
+    async def delete_poll(self, poll_id: str):
+        key = self.redis_generate_key("user_meme", poll_id)
+        await self.redis.delete(key)
+
+    async def get_poll(self, poll_id: str) -> types.Message or None:
+        key = self.redis_generate_key("user_meme", poll_id)
+        value = await self.redis.hget(key, "message")
         if value:
             return types.Message.to_object(json.loads(value))
         else:
             return None
 
-    @classmethod
-    async def get_user_message(cls, poll_id: str) -> types.Message or None:
-        key = cls.redis_generate_key("user_meme", poll_id)
-        value = await cls.redis_hget(key, "user_message")
+    async def get_user_message(self, poll_id: str) -> types.Message or None:
+        key = self.redis_generate_key("user_meme", poll_id)
+        value = await self.redis.hget(key, "user_message")
         if value:
             return types.Message.to_object(json.loads(value))
         else:
             return None
 
-    @classmethod
-    async def update_poll(cls, poll: types.Poll) -> bool:
-        key = cls.redis_generate_key("user_meme", poll.id)
-        value = await cls.get_poll(key)
+    async def update_poll(self, poll: types.Poll) -> bool:
+        key = self.redis_generate_key("user_meme", poll.id)
+        value = await self.get_poll(key)
         if value is None:
             return False
         value.poll = poll
-        await cls.redis_set(key, value.as_json())
+        await self.redis.set(key, value.as_json())
         return True
-
-
-if __name__ == '__main__':
-    pass

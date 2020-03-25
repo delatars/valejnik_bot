@@ -1,0 +1,9 @@
+**/__pycache__
+build/
+*.egg-info
+debian/.debhelper
+debian/backend
+debian/backend.*.debhelper
+debian/backend.debhelper.log
+.pybuild/
+.idea
