@@ -26,8 +26,6 @@ class GroupMemePoll(RedisConnector):
     THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
 
-    REDIS_DB = 1  # DB INDEX WHERE TO SAVE POLLS
-
     @classmethod
     async def add_poll(cls, message_with_poll: types.Message):
         key = cls.redis_generate_key("group_meme", message_with_poll.poll.id)
@@ -81,8 +79,6 @@ class UsersMemePoll(RedisConnector):
     DISABLE_NOTIFICATION = True
     THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
-
-    REDIS_DB = 1  # DB INDEX WHERE TO SAVE POLLS
 
     @classmethod
     async def add_poll(cls, user_message: types.Message, message_with_poll: types.Message):
