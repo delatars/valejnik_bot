@@ -120,11 +120,11 @@ def register_messages(dispatcher):
     )
 
     # Polls messages
-    private_poll_callback = dispatcher.throttled(throttled_message, rate=bot_config["throttle_time_limit"])(create_private_poll)
-    dispatcher.register_message_handler(private_poll_callback, ChatTypeFilter(["private", "group"]),
-                                        content_types=ContentType.PHOTO)
     dispatcher.register_message_handler(create_group_poll, ChatTypeFilter("group"),
                                         ChatIdFilter(bot_config["moderate_channel_id"]),
+                                        content_types=ContentType.PHOTO)
+    private_poll_callback = dispatcher.throttled(throttled_message, rate=bot_config["throttle_time_limit"])(create_private_poll)
+    dispatcher.register_message_handler(private_poll_callback, ChatTypeFilter(["private", "group"]),
                                         content_types=ContentType.PHOTO)
 
     # Any message
