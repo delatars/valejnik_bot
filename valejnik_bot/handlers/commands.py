@@ -14,7 +14,8 @@ async def admin_banned(message: types.Message, state: FSMContext):
 
     remaining = Banned.is_ban(message.from_user.username)
     if remaining:
-        await bot.send_message(message.chat.id, f"Ты был забанен на 1 час. Осталось: {remaining} минут.")
+        await bot.send_message(chat_id=message.chat.id,
+                               text=f"Ты был забанен на 1 час. Осталось: {remaining} минут.")
     else:
         await state.reset_state()
         await admin(message, state)
@@ -27,7 +28,8 @@ async def start(message: types.Message):
 
     text = "Шалом паря! Сейчас мы начнём валежничать по полной😎\n" \
            "Скидывай мне мемасики, а уж я разберусь что с ними делать😉"
-    await bot.send_message(message.chat.id, text)
+    await bot.send_message(chat_id=message.chat.id,
+                           text=text)
 
 
 async def admin(message: types.Message, state: FSMContext):
@@ -37,10 +39,12 @@ async def admin(message: types.Message, state: FSMContext):
 
     current_state = await state.get_state()
     if current_state == Auth.settings:
-        await bot.send_message(message.chat.id, "Ты уже избранный, и можешь все (/settings).")
+        await bot.send_message(chat_id=message.chat.id,
+                               text="Ты уже избранный, и можешь все (/settings).")
         return
     await state.set_state(Auth.check_password.try_1)
-    await bot.send_message(message.chat.id, "А ну-ка дядя, напиши мне то что я хочу увидеть.")
+    await bot.send_message(chat_id=message.chat.id,
+                           text="А ну-ка дядя, напиши мне то что я хочу увидеть.")
 
 
 async def exit(message: types.Message, state: FSMContext):
@@ -49,7 +53,8 @@ async def exit(message: types.Message, state: FSMContext):
     bot = dispatcher.bot
 
     await state.reset_state()
-    await bot.send_message(message.chat.id, "Если что ты знаешь, как вернуться😉")
+    await bot.send_message(chat_id=message.chat.id,
+                           text="Если что ты знаешь, как вернуться😉")
 
 
 async def set_timeout(message: types.Message):
@@ -60,11 +65,12 @@ async def set_timeout(message: types.Message):
 
     argument = message.get_args()
     if not argument:
-        return await message.reply("Необходим аргумент <timeout>: Например: /set_timeout 4")
+        return await message.reply(text="Необходим аргумент <timeout>: Например: /set_timeout 4")
     if not argument.isdigit():
-        return await message.reply("Аргумент <timeout> должен быть числом: Например: /set_timeout 4")
+        return await message.reply(text="Аргумент <timeout> должен быть числом: Например: /set_timeout 4")
     config["bot"]["posts"]["time_between_posts"] = argument
-    await bot.send_message(message.chat.id, f"Установлено время между постами: {argument} мин.")
+    await bot.send_message(chat_id=message.chat.id,
+                           text=f"Установлено время между постами: {argument} мин.")
 
 
 async def settings(message: types.Message):
@@ -77,7 +83,8 @@ async def settings(message: types.Message):
            "/set_moderate_channel <channel_id> - Установить канал в который отправлять на модерацию.\n\n" \
            "/set_timeout <timeout> - Установить таймаут между постами в канал.(устанавливается в минутах)\n\n" \
            "/exit - Выйти из настроек.\n"
-    await bot.send_message(message.chat.id, text)
+    await bot.send_message(chat_id=message.chat.id,
+                           text=text)
 
 
 def register_commands(dispatcher):
