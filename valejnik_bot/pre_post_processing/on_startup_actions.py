@@ -56,4 +56,6 @@ async def init_meme_queue(dispatcher: Dispatcher):
     app = dispatcher["app"]
     app["queue"] = meme_queue = AsyncQueue(dispatcher, maxsize=100)
     await meme_queue.load_queue()
-    dispatcher.loop.create_task(meme_queue.start_posting())
+    dispatcher.loop.create_task(meme_queue.start_posting(
+        timeout=dispatcher["config"]["bot"]["posts"]["time_between_posts"])
+    )
