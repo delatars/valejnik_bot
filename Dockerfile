@@ -18,4 +18,4 @@ COPY            --from=builder /libs/ /usr/local/lib/python3.7/site-packages/
 COPY            ./ /app
 WORKDIR         /app
 
-ENTRYPOINT ["python", "entrypoint.py"]
+ENTRYPOINT      ["python", "entrypoint.py"]

@@ -57,22 +57,25 @@ def show_config(filepath):
 
 
 def edit_config(filepath):
+
+    editor = None
     default_editor = "/usr/bin/vi"
-    selected_editor = os.path.join(os.path.expanduser("~"), ".selected_editor")
+    selected_editor_path = os.path.join(os.path.expanduser("~"), ".selected_editor")
 
-    if not os.path.exists(selected_editor):
+    def get_editor():
+        with open(selected_editor_path, "r") as se_file:
+            finded = re.findall(r'SELECTED_EDITOR="([^\n]+)"', se_file.read())
+            if finded:
+                return finded[0]
+
+    if os.path.exists(selected_editor_path):
+        editor = get_editor()
+    else:
         _, stderr = Popen("select-editor", shell=True, stderr=PIPE).communicate()
-        if len(stderr) > 0:
-            editor = default_editor
-        else:
-            with open(selected_editor, "r") as se_file:
-                finded = re.findall(r'SELECTED_EDITOR="([^\n]+)"', se_file.read())
-                if finded:
-                    editor = finded[0]
-                else:
-                    editor = default_editor
+        if len(stderr) == 0:
+            editor = get_editor()
 
-    Popen([editor, filepath]).communicate()
+    Popen([editor or default_editor, filepath]).communicate()
 
 
 def start_bot(mode, config):
