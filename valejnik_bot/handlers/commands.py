@@ -88,8 +88,8 @@ async def settings(message: types.Message):
 
 
 def register_commands(dispatcher):
-    dispatcher.register_message_handler(start, ChatTypeFilter("private"), commands=['start'])
-    dispatcher.register_message_handler(admin, ChatTypeFilter("private"), commands=['admin'])
+    dispatcher.register_message_handler(start, ChatTypeFilter("private"), commands=['start'], state="*")
+    dispatcher.register_message_handler(admin, ChatTypeFilter("private"), commands=['admin'], state="*")
     dispatcher.register_message_handler(admin_banned, ChatTypeFilter("private"),
                                         state=Auth.check_password.banned, commands=['admin'])
     dispatcher.register_message_handler(exit, ChatTypeFilter("private"),

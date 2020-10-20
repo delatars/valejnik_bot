@@ -5,6 +5,7 @@ from aiogram.types.message import ContentType
 
 from valejnik_bot.custom_filters import ChatTypeFilter, ChatIdFilter
 from valejnik_bot.services.auth import Auth, Banned
+from valejnik_bot.keyboards.meme_keyboard import meme_user_action_keyboard, meme_group_action_keyboard
 
 
 __all__ = ["register_messages"]
@@ -65,41 +66,11 @@ async def any_message(message: types.Message):
 
 
 async def create_group_poll(message: types.Message):
-    dispatcher = Dispatcher.get_current()
-    bot = dispatcher.bot
-    GroupMemePoll = dispatcher["app"]["polls"]["group"]
-
-    poll = await bot.send_poll(chat_id=message.chat.id,
-                               question=GroupMemePoll.QUESTION,
-                               options=GroupMemePoll.OPTIONS,
-                               disable_notification=GroupMemePoll.DISABLE_NOTIFICATION,
-                               reply_to_message_id=message.message_id)
-    await GroupMemePoll.add_poll(poll, message)
+    await message.reply("Пахнет мемасом, че с ним делаем?", reply_markup=meme_group_action_keyboard)
 
 
 async def create_private_poll(message: types.Message):
-    dispatcher = Dispatcher.get_current()
-    bot = dispatcher.bot
-    bot_config = dispatcher["config"]["bot"]["posts"]
-    UsersMemePoll = dispatcher["app"]["polls"]["users"]
-
-    user_meme_message = await bot.send_photo(chat_id=bot_config["moderate_channel_id"],
-                                             photo=message.photo[1].file_id,
-                                             disable_notification=UsersMemePoll.DISABLE_NOTIFICATION)
-    question = f"{UsersMemePoll.QUESTION}: @{message.from_user.username}\n" \
-               f"Доп. инфа:\n" \
-               f"Bot: {'Да' if message.from_user.is_bot else 'Нет'} | " \
-               f"UserName: {message.from_user.username} | " \
-               f"- LastName: {message.from_user.last_name} | " \
-               f"- FirstName: {message.from_user.first_name}"
-    poll = await bot.send_poll(chat_id=bot_config["moderate_channel_id"],
-                               question=question,
-                               options=UsersMemePoll.OPTIONS,
-                               disable_notification=UsersMemePoll.DISABLE_NOTIFICATION,
-                               reply_to_message_id=user_meme_message.message_id)
-    await UsersMemePoll.add_poll(poll, message)
-    await bot.send_message(chat_id=message.chat.id,
-                           text="Мемас отправлен на модерацию. Благодарим вас за помощь в сборе валежника.")
+    await message.reply("Опа мемасик, че с ним делаем?", reply_markup=meme_user_action_keyboard)
 
 
 def register_messages(dispatcher):
@@ -122,10 +93,13 @@ def register_messages(dispatcher):
     # Polls messages
     dispatcher.register_message_handler(create_group_poll, ChatTypeFilter("group"),
                                         ChatIdFilter(bot_config["moderate_channel_id"]),
-                                        content_types=ContentType.PHOTO)
-    private_poll_callback = dispatcher.throttled(throttled_message, rate=bot_config["throttle_time_limit"])(create_private_poll)
+                                        content_types=ContentType.PHOTO,
+                                        state="*")
+    private_poll_callback = dispatcher.throttled(throttled_message,
+                                                 rate=bot_config["throttle_time_limit"])(create_private_poll)
     dispatcher.register_message_handler(private_poll_callback, ChatTypeFilter(["private", "group"]),
-                                        content_types=ContentType.PHOTO)
+                                        content_types=ContentType.PHOTO,
+                                        state="*")
 
     # Any message
     dispatcher.register_message_handler(any_message, ChatTypeFilter("private"), state="*")

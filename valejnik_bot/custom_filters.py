@@ -48,5 +48,16 @@ class PollQuestionFilter(BoundFilter):
         return self.question in poll.question
 
 
+class CallbackQueryDataFilter(BoundFilter):
+
+    key = 'data'
+
+    def __init__(self, data: str):
+        self.data = str(data)
+
+    async def check(self, query: types.CallbackQuery) -> bool:
+        return str(query.data) == self.data
+
+
 if __name__ == '__main__':
     pass

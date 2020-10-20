@@ -49,7 +49,7 @@ async def track_private_poll(poll: types.Poll):
             await UsersMemePoll.delete_poll(poll.id)
             await bot.send_message(chat_id=from_message.chat.id,
                                    text=UsersMemePoll.ANSWERS[option_index],
-                                   reply_to_message_id=from_message.message_id)
+                                   reply_to_message_id=from_message.reply_to_message.message_id)
             if option_index == UsersMemePoll.INDEX_ANSWER_TO_POST:
                 await MemeQueue.put(poll_message)
             return
