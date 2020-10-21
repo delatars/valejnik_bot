@@ -97,7 +97,7 @@ def register_messages(dispatcher):
                                         state="*")
     private_poll_callback = dispatcher.throttled(throttled_message,
                                                  rate=bot_config["throttle_time_limit"])(create_private_poll)
-    dispatcher.register_message_handler(private_poll_callback, ChatTypeFilter(["private", "group"]),
+    dispatcher.register_message_handler(private_poll_callback, ChatTypeFilter("private", "group"),
                                         content_types=ContentType.PHOTO,
                                         state="*")
 
