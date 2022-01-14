@@ -14,7 +14,7 @@ class BasePoll:
     OPTIONS = []
     ANSWERS = []
     DISABLE_NOTIFICATION = True
-    THRESHOLD_VOTES_TO_STOP = 1
+    THRESHOLD_VOTES_TO_STOP = 2
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
 
     def __init__(self, redis_conn: aioredis.Redis):
