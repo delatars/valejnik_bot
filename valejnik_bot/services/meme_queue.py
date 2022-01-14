@@ -37,14 +37,13 @@ class AsyncQueue(asyncio.Queue):
 
         while 1:
             message = await self.get()
-            image_id = message.reply_to_message.photo[1].file_id
-            redis_key = self.redis_generate_key(image_id)
+            send_method, file_id = self._get_send_method_and_file_id(message)
+            redis_key = self.redis_generate_key(file_id)
 
             while 1:
                 try:
-                    logger.info(f"Send item: {image_id} :to channel: {self.sends_post_to}")
-                    await self.dispatcher.bot.send_photo(self.sends_post_to, image_id,
-                                                         disable_notification=self.DISABLE_NOTIFICATION)
+                    logger.info(f"Send item: {file_id} :to channel: {self.sends_post_to}")
+                    await send_method(self.sends_post_to, file_id, disable_notification=self.DISABLE_NOTIFICATION)
                 except NeedAdministratorRightsInTheChannel:
                     logger.warning(f"AdministratorRightsError: Need rights escalation for channel:"
                                    f" {self.sends_post_to}")
@@ -77,7 +76,8 @@ class AsyncQueue(asyncio.Queue):
             logger.info(" -> Queue is empty.")
 
     async def put(self, message: types.Message):
-        key = self.redis_generate_key(message.reply_to_message.photo[1].file_id)
+        _, file_id = self._get_send_method_and_file_id(message)
+        key = self.redis_generate_key(file_id)
         await self.redis.hset(key, "timestamp", time())
         await self.redis.hset(key, "message", message.as_json())
         await super().put(message)
@@ -89,6 +89,15 @@ class AsyncQueue(asyncio.Queue):
     async def remove_from_redis(self, key):
         await self.redis.delete(key)
 
+    def _get_send_method_and_file_id(self, message: types.Message):
+        file_id = None
+        send_method = None
 
-if __name__ == '__main__':
-    pass
+        if message.reply_to_message.photo:
+            file_id = message.reply_to_message.photo[1].file_id
+            send_method = self.dispatcher.bot.send_photo
+        elif message.reply_to_message.video:
+            file_id = message.reply_to_message.video.file_id
+            send_method = self.dispatcher.bot.send_video
+
+        return send_method, file_id

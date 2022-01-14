@@ -14,7 +14,7 @@ class BasePoll:
     OPTIONS = []
     ANSWERS = []
     DISABLE_NOTIFICATION = True
-    THRESHOLD_VOTES_TO_STOP = 2
+    THRESHOLD_VOTES_TO_STOP = 1
     INDEX_ANSWER_TO_POST = 0  # INDEX OF ANSWER THAT TRIGGER POST MEME ACTION
 
     def __init__(self, redis_conn: aioredis.Redis):
@@ -79,9 +79,6 @@ class GroupMemePoll(BasePoll):
         "Сори, но чёт сложнааааа...",
         "Слышь пёс! Отредактируй пикчу!"
     ]
-    DISABLE_NOTIFICATION = True
-    THRESHOLD_VOTES_TO_STOP = 2
-    INDEX_ANSWER_TO_POST = 0
 
 
 class UsersMemePoll(BasePoll):
@@ -104,6 +101,3 @@ class UsersMemePoll(BasePoll):
         "Это че за колхоз?! Отредактируй пикчу!",
         "На пикче нехватает твоей мамки."
     ]
-    DISABLE_NOTIFICATION = True
-    THRESHOLD_VOTES_TO_STOP = 2
-    INDEX_ANSWER_TO_POST = 0
