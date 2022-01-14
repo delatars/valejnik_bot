@@ -6,7 +6,7 @@ from aiogram.types.message import ContentType
 from valejnik_bot.custom_filters import ChatTypeFilter, ChatIdFilter
 from valejnik_bot.services.states import Auth
 from valejnik_bot.services.ban_service import BanService
-from valejnik_bot.keyboards.meme_keyboard import meme_user_action_keyboard, meme_group_action_keyboard
+from valejnik_bot.keyboards.meme_keyboard import meme_group_action_keyboard
 
 
 __all__ = ["register_messages"]
@@ -82,6 +82,8 @@ async def create_group_poll(message: types.Message):
 async def create_private_poll(message: types.Message):
     dispatcher = Dispatcher.get_current()
     bot = dispatcher.bot
+    bot_config = dispatcher["config"]["bot"]["posts"]
+    UsersMemePoll = dispatcher["app"]["polls"]["users"]
 
     if BanService.user_is_banned(message.from_user.username):
         banned_user = BanService.get_user(message.from_user.username)
@@ -91,7 +93,23 @@ async def create_private_poll(message: types.Message):
                                     f"Осталось: {banned_user.remaining_time} минут.")
         return
 
-    await message.reply("Опа мемасик, че с ним делаем?", reply_markup=meme_user_action_keyboard)
+    user_meme_message = await bot.send_photo(chat_id=bot_config["moderate_channel_id"],
+                                             photo=message.photo[1].file_id,
+                                             disable_notification=UsersMemePoll.DISABLE_NOTIFICATION)
+    question = f"{UsersMemePoll.QUESTION}: @{message.from_user.username}\n" \
+               f"Доп. инфа:\n" \
+               f"Bot: {'Да' if message.from_user.is_bot else 'Нет'} | " \
+               f"UserName: {message.from_user.username} | " \
+               f"- LastName: {message.from_user.last_name} | " \
+               f"- FirstName: {message.from_user.first_name}"
+    poll = await bot.send_poll(chat_id=bot_config["moderate_channel_id"],
+                               question=question,
+                               options=UsersMemePoll.OPTIONS,
+                               disable_notification=UsersMemePoll.DISABLE_NOTIFICATION,
+                               reply_to_message_id=user_meme_message.message_id)
+    await UsersMemePoll.add_poll(poll, message)
+    await bot.send_message(chat_id=message.chat.id,
+                           text="Мемас отправлен на модерацию. Благодарим вас за помощь в сборе валежника.")
 
 
 def register_messages(dispatcher):
