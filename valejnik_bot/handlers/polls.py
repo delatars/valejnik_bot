@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-from aiogram import types
+import logging
+
+from aiogram import types, exceptions
 from aiogram.dispatcher import Dispatcher
 
 from valejnik_bot.custom_filters import PollQuestionFilter
 
 
 __all__ = ["register_polls"]
+
+logger = logging.getLogger("valejnik.handlers.polls")
 
 
 async def track_group_poll(poll: types.Poll):
@@ -20,8 +24,15 @@ async def track_group_poll(poll: types.Poll):
     for option_index, option in enumerate(poll.options):
         if option["voter_count"] >= GroupMemePoll.THRESHOLD_VOTES_TO_STOP:
             from_message = await GroupMemePoll.get_from_message(poll.id)
-            await bot.stop_poll(chat_id=poll_message.chat.id,
-                                message_id=poll_message.message_id)
+            try:
+                await bot.stop_poll(
+                    chat_id=poll_message.chat.id,
+                    message_id=poll_message.message_id,
+                )
+            except exceptions.PollHasAlreadyBeenClosed:
+                logger.error(f'Poll has already been closed: {poll}')
+                return None
+
             await GroupMemePoll.delete_poll(poll.id)
             await bot.send_message(chat_id=from_message.chat.id,
                                    text=GroupMemePoll.ANSWERS[option_index],
