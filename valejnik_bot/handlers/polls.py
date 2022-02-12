@@ -44,15 +44,23 @@ async def track_private_poll(poll: types.Poll):
     for option_index, option in enumerate(poll.options):
         if option["voter_count"] >= UsersMemePoll.THRESHOLD_VOTES_TO_STOP:
             from_message = await UsersMemePoll.get_from_message(poll.id)
+            user_msg_payload = {
+                'chat_id': from_message.chat.id,
+                'text': UsersMemePoll.ANSWERS[option_index],
+            }
+            reply_to = from_message.reply_to_message.message_id
+            if reply_to:
+                user_msg_payload.update({'reply_to_message_id': reply_to})
+
             await bot.stop_poll(chat_id=poll_message.chat.id,
                                 message_id=poll_message.message_id)
             await UsersMemePoll.delete_poll(poll.id)
-            await bot.send_message(chat_id=from_message.chat.id,
-                                   text=UsersMemePoll.ANSWERS[option_index],
-                                   reply_to_message_id=from_message.reply_to_message.message_id)
+            await bot.send_message(**user_msg_payload)
+
             if option_index == UsersMemePoll.INDEX_ANSWER_TO_POST:
                 await MemeQueue.put(poll_message)
-            return
+
+            return None
     await UsersMemePoll.update_poll(poll)
 
 
