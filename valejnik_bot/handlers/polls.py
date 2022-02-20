@@ -59,9 +59,9 @@ async def track_private_poll(poll: types.Poll):
                 'chat_id': from_message.chat.id,
                 'text': UsersMemePoll.ANSWERS[option_index],
             }
-            reply_to = from_message.reply_to_message.message_id
+            reply_to = from_message.reply_to_message
             if reply_to:
-                user_msg_payload.update({'reply_to_message_id': reply_to})
+                user_msg_payload.update({'reply_to_message_id': reply_to.message_id})
 
             await bot.stop_poll(chat_id=poll_message.chat.id,
                                 message_id=poll_message.message_id)
